@@ -1,4 +1,4 @@
-from learnergy.models.bernoulli import ConvRBM, RBM
+from learnergy.models.bernoulli import RBM, ConvRBM
 from opytimizer.optimizers.evolutionary import ga
 
 
