@@ -1,6 +1,7 @@
 from learnergy.models.bernoulli import ConvRBM, RBM
 from opytimizer.optimizers.evolutionary import ga
 
+
 class Model:
     """A Model class to help users in selecting distinct architectures from the command line.
 
