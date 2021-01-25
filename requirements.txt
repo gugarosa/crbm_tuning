@@ -1,0 +1,3 @@
+git+https://github.com/gugarosa/learnergy.git
+git+https://github.com/gugarosa/opytimizer.git
+torchvision>=0.8.0
