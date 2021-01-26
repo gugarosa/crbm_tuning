@@ -6,7 +6,7 @@ from torch.utils.data import DataLoader
 import utils.loader as l
 import utils.objects as o
 import utils.optimizer as opt
-import utils.targets as t
+import utils.target as t
 
 
 def get_arguments():
@@ -18,35 +18,17 @@ def get_arguments():
     """
 
     # Creates the ArgumentParser
-    parser = argparse.ArgumentParser(usage='Optimizes an RBM-based model.')
+    parser = argparse.ArgumentParser(usage='Optimizes a ConvRBM-based model using standard meta-heuristics.')
 
     parser.add_argument('dataset', help='Dataset identifier', choices=['mnist'])
 
-    parser.add_argument('model_name', help='Model identifier', choices=['crbm', 'rbm'])
-
     parser.add_argument('mh', help='Meta-heuristic identifier', choices=['ga'])
-
-    parser.add_argument('-n_input', help='Number of input units', type=int, default=784)
     
     parser.add_argument('-visible_shape', help='Shape of input units', type=tuple, default=(28, 28))
-
-    parser.add_argument('-n_hidden', help='Number of hidden units', type=int, default=128)
-
-    parser.add_argument('-filter_shape', help='Shape of filter units', type=tuple, default=(7, 7))
-
-    parser.add_argument('-n_filters', help='Number of filters', type=int, default=10)
 
     parser.add_argument('-n_channels', help='Number of channels', type=int, default=1)
 
     parser.add_argument('-steps', help='Number of CD steps', type=int, default=1)
-
-    parser.add_argument('-lr', help='Learning rate', type=float, default=0.1)
-
-    parser.add_argument('-momentum', help='Momentum', type=float, default=0)
-
-    parser.add_argument('-decay', help='Weight decay', type=float, default=0)
-
-    parser.add_argument('-temperature', help='Temperature', type=float, default=1)
 
     parser.add_argument('-batch_size', help='Batch size', type=int, default=128)
 
@@ -55,8 +37,6 @@ def get_arguments():
     parser.add_argument('-device', help='CPU or GPU usage', choices=['cpu', 'cuda'])
 
     parser.add_argument('-n_agents', help='Number of meta-heuristic agents', type=int, default=10)
-
-    parser.add_argument('-n_variables', help='Number of variables', type=int, default=3)
 
     parser.add_argument('-n_iter', help='Number of meta-heuristic iterations', type=int, default=15)
 
@@ -73,26 +53,16 @@ if __name__ == '__main__':
     dataset = args.dataset
     seed = args.seed
 
-    # Gathering RBM-related variables
-    name = args.model_name
-    n_input = args.n_input
+    # Gathering RBM-related variable
     visible_shape = args.visible_shape
-    n_hidden = args.n_hidden
-    filter_shape = args.filter_shape
-    n_filters = args.n_filters
     n_channels = args.n_channels
     steps = args.steps
-    lr = args.lr
-    momentum = args.momentum
-    decay = args.decay
-    T = args.temperature
     batch_size = args.batch_size
     epochs = args.epochs
     device = args.device
 
     # Gathering optimization variables
     n_agents = args.n_agents
-    n_variables = args.n_variables
     n_iterations = args.n_iter
     mh_name = args.mh
     mh = o.get_mh(mh_name).obj
@@ -113,18 +83,15 @@ if __name__ == '__main__':
     torch.manual_seed(seed)
 
     # Defines the optimization task
-    opt_fn = t.reconstruction(name, n_input, visible_shape, n_hidden, filter_shape, n_filters, n_channels,
-                              steps, lr, momentum, decay, T, use_gpu, batch_size, epochs, train, val)
+    opt_fn = t.reconstruction(visible_shape, n_channels, steps, use_gpu, batch_size, epochs, train, val)
 
     # Defines the boundaries
-    lb = [0] * n_variables
-    ub = [1] * n_variables
+    # [filter_shape, n_filters, lr, momentum, decay]
+    lb = [1, 1, 0, 0, 0]
+    ub = [7, 10, 1, 1, 1]
 
     # Running the optimization task
-    # if mh_name == 'gp':
-        # history = opt.tree_opt(mh, opt_fn, n_agents, n_variables, n_iterations, lb, ub, hyperparams)
-    # else:
-    history = opt.standard_opt(mh, opt_fn, n_agents, n_variables, n_iterations, lb, ub, hyperparams)
+    history = opt.standard_opt(mh, opt_fn, n_agents, len(lb), n_iterations, lb, ub, hyperparams)
 
     # Saving history object
     history.save(f'{mh_name}.history')
