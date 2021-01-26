@@ -12,7 +12,7 @@ N_CLASSES=10
 STEPS=1
 
 # Optimization variables
-MH="gp"
+MH="ga"
 N_AGENTS=1
 N_TERMINALS=2
 N_ITER=1
@@ -22,8 +22,8 @@ MAX_DEPTH=5
 # Iterates through all possible seeds
 for SEED in $(seq 1 $N_RUNS); do
     # Optimizes an architecture
-    # python crbm_optimization.py ${DATA} ${MH} -visible_shape ${VISIBLE_SHAPE} ${VISIBLE_SHAPE} -n_channels ${N_CHANNELS} -steps ${STEPS} -batch_size ${BATCH_SIZE} -epochs ${EPOCHS} -device ${DEVICE} -n_agents ${N_AGENTS} -n_iter ${N_ITER} -seed ${SEED}
-    python crbm_tree_optimization.py ${DATA} ${MH} -visible_shape ${VISIBLE_SHAPE} ${VISIBLE_SHAPE} -n_channels ${N_CHANNELS} -steps ${STEPS} -batch_size ${BATCH_SIZE} -epochs ${EPOCHS} -device ${DEVICE} -n_trees ${N_AGENTS} -n_terminals ${N_TERMINALS} -n_iter ${N_ITER} -min_depth ${MIN_DEPTH} -max_depth ${MAX_DEPTH} -seed ${SEED}
+    python crbm_optimization.py ${DATA} ${MH} -visible_shape ${VISIBLE_SHAPE} ${VISIBLE_SHAPE} -n_channels ${N_CHANNELS} -steps ${STEPS} -batch_size ${BATCH_SIZE} -epochs ${EPOCHS} -device ${DEVICE} -n_agents ${N_AGENTS} -n_iter ${N_ITER} -seed ${SEED}
+    # python crbm_tree_optimization.py ${DATA} ${MH} -visible_shape ${VISIBLE_SHAPE} ${VISIBLE_SHAPE} -n_channels ${N_CHANNELS} -steps ${STEPS} -batch_size ${BATCH_SIZE} -epochs ${EPOCHS} -device ${DEVICE} -n_trees ${N_AGENTS} -n_terminals ${N_TERMINALS} -n_iter ${N_ITER} -min_depth ${MIN_DEPTH} -max_depth ${MAX_DEPTH} -seed ${SEED}
 
     # Evaluates an optimized architecture
     python crbm_evaluation.py ${DATA} ${MH}.pkl -visible_shape ${VISIBLE_SHAPE} ${VISIBLE_SHAPE} -n_channels ${N_CHANNELS} -n_classes ${N_CLASSES} -steps ${STEPS} -batch_size ${BATCH_SIZE} -epochs ${EPOCHS} -device ${DEVICE} -seed ${SEED}
