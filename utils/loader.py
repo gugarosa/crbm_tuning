@@ -22,17 +22,18 @@ def load_caltech101():
     # Loads the dataset from a .mat file
     data = sio.loadmat('./datasets/caltech101/silhouettes.mat')
 
-    # Gathers the samples
+    # Gathers the samples, put them as `float` and reshapes them to 4D
     x_train = data['train_data'].astype('float32').reshape((-1, 1, 28, 28))
     x_val = data['val_data'].astype('float32').reshape((-1, 1, 28, 28))
     x_test = data['test_data'].astype('float32').reshape((-1, 1, 28, 28))
 
-    # Gathers the labels
+    # Gathers the labels, put them as `long`, squeezes the last dimension
+    # and subtract 1 to make their values start from zero
     y_train = data['train_labels'].astype('long').squeeze(-1) - 1
     y_val = data['val_labels'].astype('long').squeeze(-1) - 1
     y_test = data['test_labels'].astype('long').squeeze(-1) - 1
 
-    # Loads the sets using torch
+    # Loads the sets using TensorDataset
     train = TensorDataset(torch.from_numpy(x_train), torch.from_numpy(y_train))
     val = TensorDataset(torch.from_numpy(x_val), torch.from_numpy(y_val))
     test = TensorDataset(torch.from_numpy(x_test), torch.from_numpy(y_test))
