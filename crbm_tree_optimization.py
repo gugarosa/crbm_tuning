@@ -107,4 +107,4 @@ if __name__ == '__main__':
                            hyperparams)
 
     # Saving history object
-    history.save(f'{mh_name}.history')
+    history.save(f'{mh_name}.pkl')

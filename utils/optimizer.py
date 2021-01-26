@@ -80,6 +80,6 @@ def tree_opt(opt, target, n_trees, n_terminals, n_variables, n_iterations,
     task = Opytimizer(space=space, optimizer=optimizer, function=function)
 
     # Initializing task
-    history = task.start()
+    history = task.start(store_best_only=True)
 
     return history
