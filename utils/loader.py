@@ -6,6 +6,7 @@ import torchvision as tv
 # A constant used to hold a dictionary of possible datasets
 DATASETS = {
     'mnist': tv.datasets.MNIST
+    'caltech': 
 }
 
 
@@ -45,3 +46,28 @@ def load_dataset(name='mnist', size=(28, 28), val_split=0.2, seed=0):
                           )
 
     return train, val, test
+
+def load_caltech101silhouettes(args):
+    def reshape_data(data):
+        return data.reshape((-1, 28, 28)).reshape((-1, 28*28), order='fortran')
+    caltech_raw = loadmat(os.path.join('dataset', 'Caltech101Silhouettes', 'caltech101_silhouettes_28_split1.mat'))
+
+    # train, validation and test data
+    x_train = reshape_data(caltech_raw['train_data'].astype('float32'))
+    np.random.shuffle(x_train)
+    x_val = reshape_data(caltech_raw['val_data'].astype('float32'))
+    np.random.shuffle(x_val)
+    x_test = reshape_data(caltech_raw['test_data'].astype('float32'))
+
+    y_train = caltech_raw['train_labels']
+    y_val = caltech_raw['val_labels']
+    y_test = caltech_raw['test_labels']
+
+    # pytorch data loader
+    train = data_utils.TensorDataset(torch.from_numpy(x_train), torch.from_numpy(y_train))
+
+    validation = data_utils.TensorDataset(torch.from_numpy(x_val).float(), torch.from_numpy(y_val))
+
+    test = data_utils.TensorDataset(torch.from_numpy(x_test).float(), torch.from_numpy(y_test))
+
+    return train_loader, val_loader, test_loader
