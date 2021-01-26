@@ -1,7 +1,10 @@
 import argparse
 
 import torch
+import torch.nn as nn
+import torch.optim as optim
 from torch.utils.data import DataLoader
+from tqdm import tqdm
 
 import utils.loader as l
 
@@ -23,7 +26,7 @@ def get_arguments():
 
     parser.add_argument('history', help='History object identifier', type=str)
 
-    parser.add_argument('-visible_shape', help='Shape of input units', type=tuple, default=(28, 28))
+    parser.add_argument('-visible_shape', help='Shape of input units', nargs='+', type=int, default=[28, 28])
 
     parser.add_argument('-n_channels', help='Number of channels', type=int, default=1)
 
@@ -52,7 +55,7 @@ if __name__ == '__main__':
     seed = args.seed
 
     # Gathering RBM-related variable
-    visible_shape = args.visible_shape
+    visible_shape = tuple(args.visible_shape)
     n_channels = args.n_channels
     n_classes = args.n_classes
     steps = args.steps
@@ -95,4 +98,97 @@ if __name__ == '__main__':
     mse, _ = model.reconstruct(test)
 
     # Saves the evaluated model
-    model.save('crbm.pth')
+    torch.save(model, 'crbm.pth')
+
+    # Creating the Fully Connected layer to append on top of RBM
+    fc = nn.Linear(model.hidden_shape[0] * model.hidden_shape[1] * n_filters, n_classes)
+
+    # Check if model uses GPU
+    if model.device == 'cuda':
+        # If yes, put fully-connected on GPU
+        fc = fc.cuda()
+
+    # Cross-Entropy loss is used for the discriminative fine-tuning
+    criterion = nn.CrossEntropyLoss()
+
+    # Creating the optimzers
+    optimizer = [optim.Adam(model.parameters(), lr=0.0001),
+                 optim.Adam(fc.parameters(), lr=0.001)]
+
+    # Creating training and testing batches
+    train_batch = DataLoader(train, batch_size=batch_size, shuffle=False, num_workers=1)
+    test_batch = DataLoader(test, batch_size=10000, shuffle=False, num_workers=1)
+
+    # For amount of fine-tuning epochs
+    for e in range(10):
+        print(f'Epoch {e+1}/{10}')
+
+        # Resetting metrics
+        train_loss, test_acc = 0, 0
+        
+        # For every possible batch
+        for x_batch, y_batch in tqdm(train_batch):
+            # For every possible optimizer
+            for opt in optimizer:
+                # Resets the optimizer
+                opt.zero_grad()
+
+            # Checking whether GPU is avaliable and if it should be used
+            if model.device == 'cuda':
+                # Applies the GPU usage to the data and labels
+                x_batch = x_batch.cuda()
+                y_batch = y_batch.cuda()
+
+            # Passing the batch down the model
+            y = model(x_batch)
+
+            # Reshaping the outputs
+            y = y.reshape(x_batch.size(0), model.hidden_shape[0] * model.hidden_shape[1] * n_filters)
+
+            # Calculating the fully-connected outputs
+            y = fc(y)
+            
+            # Calculating loss
+            loss = criterion(y, y_batch)
+            
+            # Propagating the loss to calculate the gradients
+            loss.backward()
+            
+            # For every possible optimizer
+            for opt in optimizer:
+                # Performs the gradient update
+                opt.step()
+
+            # Adding current batch loss
+            train_loss += loss.item()
+            
+        # Calculate the test accuracy for the model:
+        for x_batch, y_batch in tqdm(test_batch):
+            # Checking whether GPU is avaliable and if it should be used
+            if model.device == 'cuda':
+                # Applies the GPU usage to the data and labels
+                x_batch = x_batch.cuda()
+                y_batch = y_batch.cuda()
+
+            # Passing the batch down the model
+            y = model(x_batch)
+
+            # Reshaping the outputs
+            y = y.reshape(x_batch.size(0), model.hidden_shape[0] * model.hidden_shape[1] * n_filters)
+
+            # Calculating the fully-connected outputs
+            y = fc(y)
+
+            # Calculating predictions
+            _, preds = torch.max(y, 1)
+
+            # Calculating testing set accuracy
+            test_acc = torch.mean((torch.sum(preds == y_batch).float()) / x_batch.size(0))
+
+        print(f'Loss: {train_loss / len(train_batch)} | Test Accuracy: {test_acc}')
+
+    # Saving the fine-tuned model
+    torch.save(model, 'crbm_fine_tuned.pth')
+
+    # Checking the model's history
+    print(model.history)

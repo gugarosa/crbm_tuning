@@ -2,7 +2,6 @@ import argparse
 
 import numpy as np
 import torch
-from torch.utils.data import DataLoader
 
 import utils.loader as l
 import utils.objects as o
@@ -25,7 +24,7 @@ def get_arguments():
 
     parser.add_argument('mh', help='Meta-heuristic identifier', choices=['gp'])
 
-    parser.add_argument('-visible_shape', help='Shape of input units', type=tuple, default=(28, 28))
+    parser.add_argument('-visible_shape', help='Shape of input units', nargs='+', type=int, default=[28, 28])
 
     parser.add_argument('-n_channels', help='Number of channels', type=int, default=1)
 
@@ -61,7 +60,7 @@ if __name__ == '__main__':
     seed = args.seed
 
     # Gathering RBM-related variable
-    visible_shape = args.visible_shape
+    visible_shape = tuple(args.visible_shape)
     n_channels = args.n_channels
     steps = args.steps
     batch_size = args.batch_size
