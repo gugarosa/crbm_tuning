@@ -66,7 +66,7 @@ def tree_opt(opt, target, n_trees, n_terminals, n_variables, n_iterations,
     """
 
     # Creating the TreeSpace
-    space = TreeSpace(n_trees=n_trees, n_terminals=n_terminals, n_variables=n_variables, 
+    space = TreeSpace(n_trees=n_trees, n_terminals=n_terminals, n_variables=n_variables,
                       n_iterations=n_iterations, min_depth=min_depth, max_depth=max_depth,
                       functions=functions, lower_bound=lb, upper_bound=ub)
 

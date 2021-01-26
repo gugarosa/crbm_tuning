@@ -19,11 +19,11 @@ def get_arguments():
     """
 
     # Creates the ArgumentParser
-    parser = argparse.ArgumentParser(usage='Optimizes a ConvRBM-based model using standard meta-heuristics.')
+    parser = argparse.ArgumentParser(usage='Optimizes a ConvRBM-based model using Genetic Programming.')
 
     parser.add_argument('dataset', help='Dataset identifier', choices=['mnist'])
 
-    parser.add_argument('mh', help='Meta-heuristic identifier', choices=['ga'])
+    parser.add_argument('mh', help='Meta-heuristic identifier', choices=['gp'])
 
     parser.add_argument('-visible_shape', help='Shape of input units', type=tuple, default=(28, 28))
 
@@ -37,9 +37,15 @@ def get_arguments():
 
     parser.add_argument('-device', help='CPU or GPU usage', choices=['cpu', 'cuda'])
 
-    parser.add_argument('-n_agents', help='Number of meta-heuristic agents', type=int, default=10)
+    parser.add_argument('-n_trees', help='Number of trees', type=int, default=10)
 
-    parser.add_argument('-n_iter', help='Number of meta-heuristic iterations', type=int, default=15)
+    parser.add_argument('-n_terminals', help='Number of terminals', type=int, default=2)
+
+    parser.add_argument('-n_iter', help='Number of optimization iterations', type=int, default=15)
+
+    parser.add_argument('-min_depth', help='Minimum depth', type=int, default=1)
+
+    parser.add_argument('-max_depth', help='Maximum depth', type=int, default=5)
 
     parser.add_argument('-seed', help='Seed identifier', type=int, default=0)
 
@@ -63,8 +69,11 @@ if __name__ == '__main__':
     device = args.device
 
     # Gathering optimization variables
-    n_agents = args.n_agents
+    n_trees = args.n_trees
+    n_terminals = args.n_terminals
     n_iterations = args.n_iter
+    min_depth = args.min_depth
+    max_depth = args.max_depth
     mh_name = args.mh
     mh = o.get_mh(mh_name).obj
     hyperparams = o.get_mh(args.mh).hyperparams
@@ -93,7 +102,9 @@ if __name__ == '__main__':
     ub = [7, 10, 1.0, 1.0, 1.0]
 
     # Running the optimization task
-    history = opt.standard_opt(mh, opt_fn, n_agents, len(lb), n_iterations, lb, ub, hyperparams)
+    history = opt.tree_opt(mh, opt_fn, n_trees, n_terminals, len(lb), n_iterations,
+                           min_depth, max_depth, ['SUM', 'SUB', 'MUL', 'DIV'], lb, ub,
+                           hyperparams)
 
     # Saving history object
     history.save(f'{mh_name}.history')

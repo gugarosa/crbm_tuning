@@ -25,7 +25,7 @@ class MetaHeuristic:
 # Defines a meta-heuristic dictionary constant with the possible values
 MH = dict(
     ga=MetaHeuristic(ga.GA, dict(p_selection=0.75, p_mutation=0.25, p_crossover=0.5)),
-    gp=MetaHeuristic(gp.GP, dict(p_reproduction=0.25, p_mutation=0.1, p_crossover=0.2, prunning_ratio=0.0)) 
+    gp=MetaHeuristic(gp.GP, dict(p_reproduction=0.25, p_mutation=0.1, p_crossover=0.2, prunning_ratio=0.0))
 )
 
 

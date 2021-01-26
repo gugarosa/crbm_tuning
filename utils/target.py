@@ -1,4 +1,5 @@
 from learnergy.models.bernoulli import ConvRBM
+
 import utils.objects as o
 
 
@@ -36,7 +37,8 @@ def reconstruction(visible_shape, n_channels, steps, use_gpu, batch_size, epochs
         decay = p[4][0]
 
         # Initializes the model
-        model = ConvRBM(visible_shape, filter_shape, n_filters, n_channels, steps, lr, momentum, decay, use_gpu)
+        model = ConvRBM(visible_shape, filter_shape, n_filters,
+                        n_channels, steps, lr, momentum, decay, use_gpu)
 
         # Trains the model using the training set
         model.fit(train, batch_size, epochs)
