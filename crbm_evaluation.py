@@ -3,13 +3,13 @@ import argparse
 import torch
 import torch.nn as nn
 import torch.optim as optim
+from learnergy.models.bernoulli import ConvRBM
+from opytimizer.utils.history import History
 from torch.utils.data import DataLoader
 from tqdm import tqdm
 
 import utils.loader as l
 
-from learnergy.models.bernoulli import ConvRBM
-from opytimizer.utils.history import History
 
 def get_arguments():
     """Gets arguments from the command line.
@@ -22,7 +22,7 @@ def get_arguments():
     # Creates the ArgumentParser
     parser = argparse.ArgumentParser(usage='Evaluates a ConvRBM-based model using best parameters.')
 
-    parser.add_argument('dataset', help='Dataset identifier', choices=['mnist'])
+    parser.add_argument('dataset', help='Dataset identifier', choices=['caltech101', 'mnist'])
 
     parser.add_argument('history', help='History object identifier', type=str)
 

@@ -1,5 +1,5 @@
 # Common variables definition
-DATA="mnist"
+DATA="caltech101"
 BATCH_SIZE=128
 EPOCHS=1
 DEVICE="cpu"
@@ -8,7 +8,7 @@ N_RUNS=1
 # Architecture variables
 VISIBLE_SHAPE=28
 N_CHANNELS=1
-N_CLASSES=10
+N_CLASSES=101
 STEPS=1
 
 # Optimization variables
