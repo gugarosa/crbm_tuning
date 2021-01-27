@@ -20,7 +20,7 @@ def get_arguments():
     # Creates the ArgumentParser
     parser = argparse.ArgumentParser(usage='Optimizes a ConvRBM-based model using standard meta-heuristics.')
 
-    parser.add_argument('dataset', help='Dataset identifier', choices=['caltech101', 'mnist'])
+    parser.add_argument('dataset', help='Dataset identifier', choices=['caltech101', 'mnist', 'semeion'])
 
     parser.add_argument('mh', help='Meta-heuristic identifier', choices=['ga'])
 
