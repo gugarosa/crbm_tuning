@@ -22,7 +22,8 @@ def get_arguments():
     # Creates the ArgumentParser
     parser = argparse.ArgumentParser(usage='Evaluates a ConvRBM-based model using best parameters.')
 
-    parser.add_argument('dataset', help='Dataset identifier', choices=['caltech101', 'mnist', 'semeion'])
+    parser.add_argument('dataset', help='Dataset identifier', choices=['caltech101', 'fmnist', 'kmnist',
+                                                                       'mnist', 'semeion'])
 
     parser.add_argument('history', help='History object identifier', type=str)
 
