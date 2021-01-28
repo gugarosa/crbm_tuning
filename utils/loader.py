@@ -1,5 +1,6 @@
 import random
 
+import numpy as np
 import scipy.io as sio
 import torch
 import torchvision as tv
@@ -14,8 +15,11 @@ DATASETS = {
 }
 
 
-def load_caltech101():
+def load_caltech101(size):
     """Loads the Caltech101 Silhouettes.
+
+    Args:
+        size (tuple): Height and width to be resized.
 
     Returns:
         Training, validation and testing sets of Caltech101 Silhouettes.
@@ -29,6 +33,11 @@ def load_caltech101():
     x_train = data['train_data'].astype('float32').reshape((-1, 1, 28, 28))
     x_val = data['val_data'].astype('float32').reshape((-1, 1, 28, 28))
     x_test = data['test_data'].astype('float32').reshape((-1, 1, 28, 28))
+
+    # Resizing data
+    x_train = np.resize(x_train, ((x_train.shape[0], 1, *size)))
+    x_val = np.resize(x_val, ((x_val.shape[0], 1, *size)))
+    x_test = np.resize(x_test, ((x_test.shape[0], 1, *size)))
 
     # Gathers the labels, put them as `long`, squeezes the last dimension
     # and subtract 1 to make their values start from zero
@@ -44,10 +53,11 @@ def load_caltech101():
     return train, val, test
 
 
-def load_semeion(split=0.25):
+def load_semeion(size, split):
     """Loads the Semeion dataset.
 
     Args:
+        size (tuple): Height and width to be resized.
         split (float): Percentage of split for both validation and test set.
 
     Returns:
@@ -57,7 +67,10 @@ def load_semeion(split=0.25):
 
     # Loads the data
     data = DATASETS['semeion'](root='./data', download=True,
-                               transform=tv.transforms.Compose([tv.transforms.ToTensor()]))
+                               transform=tv.transforms.Compose(
+                               [tv.transforms.ToTensor(),
+                                tv.transforms.Resize(size)])
+                              )
 
     # Splitting the data into training/validation/test
     train, val, test = torch.utils.data.random_split(data, [int(
@@ -85,9 +98,9 @@ def load_dataset(name='mnist', size=(28, 28), val_split=0.25, seed=0):
 
     # Checks if it is supposed to load custom datasets
     if name == 'caltech101':
-        return load_caltech101()
+        return load_caltech101(size)
     elif name == 'semeion':
-        return load_semeion(val_split)
+        return load_semeion(size, val_split)
 
     # Loads the training data
     train = DATASETS[name](root='./data', train=True, download=True,
