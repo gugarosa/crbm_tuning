@@ -73,7 +73,7 @@ if __name__ == '__main__':
         use_gpu = True
 
     # Loads the data
-    train, _, test = l.load_dataset(name=dataset, seed=seed)
+    train, _, test = l.load_dataset(name=dataset, size=visible_shape, seed=seed)
 
     # Defining seeds
     torch.manual_seed(seed)
