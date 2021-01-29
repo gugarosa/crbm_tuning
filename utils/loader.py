@@ -1,4 +1,6 @@
+import os
 import random
+import urllib.request
 
 import numpy as np
 import scipy.io as sio
@@ -15,6 +17,24 @@ DATASETS = {
 }
 
 
+def download_file(url, output_path):
+    """Downloads a file given its URL and the output path to be saved.
+
+    Args:
+        url (str): URL to download the file.
+        output_path (str): Path to save the downloaded file.
+        
+    """
+
+    # Checks if file exists
+    file_exists = os.path.exists(output_path)
+
+    # If file does not exist
+    if not file_exists:
+        # Downloads the file
+        urllib.request.urlretrieve(url, output_path)
+
+
 def load_caltech101(size):
     """Loads the Caltech101 Silhouettes.
 
@@ -26,8 +46,12 @@ def load_caltech101(size):
 
     """
 
+    # Attempts to download the file
+    output_path = './datasets/caltech101_silhouettes.mat'
+    download_file('http://recogna.tech/files/crbm_tuning/caltech101_silhouettes.mat', output_path)
+
     # Loads the dataset from a .mat file
-    data = sio.loadmat('./datasets/caltech101_silhouettes.mat')
+    data = sio.loadmat(output_path)
 
     # Gathers the samples, put them as `float` and reshapes them to 4D
     x_train = data['train_data'].astype('float32').reshape((-1, 1, 28, 28))
