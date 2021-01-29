@@ -27,7 +27,7 @@ def load_caltech101(size):
     """
 
     # Loads the dataset from a .mat file
-    data = sio.loadmat('./datasets/caltech101/silhouettes.mat')
+    data = sio.loadmat('./datasets/caltech101_silhouettes.mat')
 
     # Gathers the samples, put them as `float` and reshapes them to 4D
     x_train = data['train_data'].astype('float32').reshape((-1, 1, 28, 28))
