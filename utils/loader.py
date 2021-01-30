@@ -8,6 +8,9 @@ import torch
 import torchvision as tv
 from torch.utils.data import TensorDataset
 
+from torch.utils.data import Dataset
+from torchvision import transforms
+
 # A constant used to hold a dictionary of possible datasets
 DATASETS = {
     'fmnist': tv.datasets.FashionMNIST,
@@ -16,6 +19,57 @@ DATASETS = {
     'semeion': tv.datasets.SEMEION
 }
 
+class NaturalImagesDataset(Dataset):
+    """Loads the Natural images from Olshausen's."""
+
+    def __init__(self, mat_file, transform=None ):
+        """
+        Args:
+            mat_file (string): Path to the mat file.
+            transform (callable, optional): Optional transform to be applied on a sample.
+        """
+        # Loads the dataset from a .mat file
+        self.mat_file = sio.loadmat(mat_file)
+        # Gathers the samples, put them as `float`
+        self.data = self.mat_file['IMAGES'].astype('float32').reshape(( 512, 512, 1, -1))
+        # Creating labels using len, each image is unique 
+        self.labels= np.arange( len(self.data) )
+        self.transform = transform
+
+    def __len__(self):
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        if torch.is_tensor(idx):
+            idx = idx.tolist()
+        
+        sample = self.data[:,:,:,idx]
+
+        if self.transform:
+            sample = self.transform(sample)
+
+        return (sample, self.labels[idx])
+
+def load_natural_images(size):
+    data_dir = './datasets/natural_images/natural_images_whitened.mat'
+
+    data_transforms = {
+        'train': transforms.Compose([
+            transforms.ToTensor(),
+            transforms.RandomResizedCrop(size),
+            transforms.RandomHorizontalFlip()
+        ]),
+        'valid': transforms.Compose([
+            transforms.ToTensor(),
+            transforms.Resize(size)
+        ]),
+    }    
+
+    train = NaturalImagesDataset(mat_file=data_dir, transform=data_transforms['train'])
+    val = NaturalImagesDataset(mat_file=data_dir, transform=data_transforms['valid'])
+    test = NaturalImagesDataset(mat_file=data_dir, transform=data_transforms['valid'])
+
+    return train,val,test
 
 def download_file(url, output_path):
     """Downloads a file given its URL and the output path to be saved.
@@ -125,6 +179,8 @@ def load_dataset(name='mnist', size=(28, 28), val_split=0.25, seed=0):
         return load_caltech101(size)
     elif name == 'semeion':
         return load_semeion(size, val_split)
+    elif name == 'natural_images':
+        return load_natural_images(size)
 
     # Loads the training data
     train = DATASETS[name](root='./data', train=True, download=True,
