@@ -22,14 +22,20 @@ DATASETS = {
 class NaturalImagesDataset(Dataset):
     """Loads the Natural images from Olshausen's."""
 
-    def __init__(self, mat_file, transform=None ):
+    url = "http://www.rctn.org/bruno/sparsenet/IMAGES.mat"
+
+    def __init__(self, root, transform=None , download = True):
         """
         Args:
-            mat_file (string): Path to the mat file.
+            root (string): Path to the mat file.
             transform (callable, optional): Optional transform to be applied on a sample.
         """
+        self.mat_file= os.path.join( root, 'natural_images_whitened.mat' )
+
+        if download:
+            self.download()
         # Loads the dataset from a .mat file
-        self.mat_file = sio.loadmat(mat_file)
+        self.mat_file = sio.loadmat(self.mat_file)
         # Gathers the samples, put them as `float`
         self.data = self.mat_file['IMAGES'].astype('float32').reshape(( 512, 512, 1, -1))
         # Creating labels using len, each image is unique 
@@ -37,7 +43,7 @@ class NaturalImagesDataset(Dataset):
         self.transform = transform
 
     def __len__(self):
-        return len(self.data)
+        return self.data.shape[3]
 
     def __getitem__(self, idx):
         if torch.is_tensor(idx):
@@ -50,9 +56,13 @@ class NaturalImagesDataset(Dataset):
 
         return (sample, self.labels[idx])
 
-def load_natural_images(size):
-    data_dir = './datasets/natural_images/natural_images_whitened.mat'
+    def download(self):
+        # Attempts to download the file
+        download_file(self.url, self.mat_file)
 
+
+def load_natural_images(size):
+    
     data_transforms = {
         'train': transforms.Compose([
             transforms.ToTensor(),
@@ -65,9 +75,9 @@ def load_natural_images(size):
         ]),
     }    
 
-    train = NaturalImagesDataset(mat_file=data_dir, transform=data_transforms['train'])
-    val = NaturalImagesDataset(mat_file=data_dir, transform=data_transforms['valid'])
-    test = NaturalImagesDataset(mat_file=data_dir, transform=data_transforms['valid'])
+    train = NaturalImagesDataset(root='./datasets', transform=data_transforms['train'])
+    val = NaturalImagesDataset(root='./datasets', transform=data_transforms['valid'])
+    test = NaturalImagesDataset(root='./datasets', transform=data_transforms['valid'])
 
     return train,val,test
 
