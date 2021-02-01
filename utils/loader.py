@@ -6,10 +6,7 @@ import numpy as np
 import scipy.io as sio
 import torch
 import torchvision as tv
-from torch.utils.data import TensorDataset
-
-from torch.utils.data import Dataset
-from torchvision import transforms
+from torch.utils.data import Dataset, TensorDataset
 
 # A constant used to hold a dictionary of possible datasets
 DATASETS = {
@@ -19,67 +16,63 @@ DATASETS = {
     'semeion': tv.datasets.SEMEION
 }
 
+
 class NaturalImagesDataset(Dataset):
-    """Loads the Natural images from Olshausen's."""
+    """Loads the Natural images from Olshausen's.
 
-    url = "http://www.rctn.org/bruno/sparsenet/IMAGES.mat"
+    """
 
-    def __init__(self, root, transform=None , download = True):
-        """
+    def __init__(self, root, transform=None):
+        """Initialization method.
+
         Args:
-            root (string): Path to the mat file.
-            transform (callable, optional): Optional transform to be applied on a sample.
-        """
-        self.mat_file= os.path.join( root, 'natural_images_whitened.mat' )
+            root (string): Path to the .mat file.
+            transform (callable): Optional transform to be applied on a sample.
 
-        if download:
-            self.download()
+        """
+
         # Loads the dataset from a .mat file
-        self.mat_file = sio.loadmat(self.mat_file)
-        # Gathers the samples, put them as `float`
-        self.data = self.mat_file['IMAGES'].astype('float32').reshape(( 512, 512, 1, -1))
-        # Creating labels using len, each image is unique 
-        self.labels= np.arange( len(self.data) )
+        data = sio.loadmat(root)
+
+        # Gathers the samples, put them as `float` and reshape them
+        self.data = data['IMAGES'].astype('float32').reshape((512, 512, 1, -1))
+
+        # Creates labels from each image
+        self.labels = np.arange(len(self.data))
+
+        # Defines the transform
         self.transform = transform
 
     def __len__(self):
+        """Returns the length of the dataset.
+
+        """
+
         return self.data.shape[3]
 
     def __getitem__(self, idx):
-        if torch.is_tensor(idx):
-            idx = idx.tolist()
-        
-        sample = self.data[:,:,:,idx]
+        """Returns each individual sample of the dataset.
 
+        Args:
+            idx (int): Sample identifier.
+
+        """
+
+        # Checks if index is a tensor
+        if torch.is_tensor(idx):
+            # If yes, transforms to a list
+            idx = idx.tolist()
+
+        # Gathers the sample
+        sample = self.data[:, :, :, idx]
+
+        # If there is a pre-defined transform
         if self.transform:
+            # Applies the transform
             sample = self.transform(sample)
 
         return (sample, self.labels[idx])
 
-    def download(self):
-        # Attempts to download the file
-        download_file(self.url, self.mat_file)
-
-
-def load_natural_images(size):
-    
-    data_transforms = {
-        'train': transforms.Compose([
-            transforms.ToTensor(),
-            transforms.RandomResizedCrop(size),
-            transforms.RandomHorizontalFlip()
-        ]),
-        'valid': transforms.Compose([
-            transforms.ToTensor(),
-            transforms.Resize(size)
-        ]),
-    }    
-
-    train = NaturalImagesDataset(root='./datasets', transform=data_transforms['train'])
-    val = NaturalImagesDataset(root='./datasets', transform=data_transforms['valid'])
-    test = NaturalImagesDataset(root='./datasets', transform=data_transforms['valid'])
-
-    return train,val,test
 
 def download_file(url, output_path):
     """Downloads a file given its URL and the output path to be saved.
@@ -87,7 +80,7 @@ def download_file(url, output_path):
     Args:
         url (str): URL to download the file.
         output_path (str): Path to save the downloaded file.
-        
+
     """
 
     # Checks if file exists
@@ -141,6 +134,42 @@ def load_caltech101(size):
     return train, val, test
 
 
+def load_natural_images(size):
+    """Loads the Natural Images dataset.
+
+    Args:
+        size (tuple): Height and width to be resized.
+
+    Returns:
+        Training, validation and testing sets of Natural Images.
+
+    """
+
+    # Attempts to download the file
+    output_path = './datasets/natural_images.mat'
+    download_file('http://recogna.tech/files/crbm_tuning/natural_images.mat', output_path)
+
+    # Defining a dictionary of transforms
+    data_transforms = {
+        'train': tv.transforms.Compose([
+            tv.transforms.ToTensor(),
+            tv.transforms.RandomResizedCrop(size),
+            tv.transforms.RandomHorizontalFlip()
+        ]),
+        'val': tv.transforms.Compose([
+            tv.transforms.ToTensor(),
+            tv.transforms.Resize(size)
+        ]),
+    }
+
+    # Loads the sets using NaturalImagesDataset
+    train = NaturalImagesDataset(root=output_path, transform=data_transforms['train'])
+    val = NaturalImagesDataset(root=output_path, transform=data_transforms['val'])
+    test = NaturalImagesDataset(root=output_path, transform=data_transforms['val'])
+
+    return train, val, test
+
+
 def load_semeion(size, split):
     """Loads the Semeion dataset.
 
@@ -156,9 +185,9 @@ def load_semeion(size, split):
     # Loads the data
     data = DATASETS['semeion'](root='./data', download=True,
                                transform=tv.transforms.Compose(
-                               [tv.transforms.ToTensor(),
-                                tv.transforms.Resize(size)])
-                              )
+                                   [tv.transforms.ToTensor(),
+                                    tv.transforms.Resize(size)])
+                               )
 
     # Splitting the data into training/validation/test
     train, val, test = torch.utils.data.random_split(data, [int(
@@ -187,10 +216,10 @@ def load_dataset(name='mnist', size=(28, 28), val_split=0.25, seed=0):
     # Checks if it is supposed to load custom datasets
     if name == 'caltech101':
         return load_caltech101(size)
-    elif name == 'semeion':
-        return load_semeion(size, val_split)
     elif name == 'natural_images':
         return load_natural_images(size)
+    elif name == 'semeion':
+        return load_semeion(size, val_split)
 
     # Loads the training data
     train = DATASETS[name](root='./data', train=True, download=True,

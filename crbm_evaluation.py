@@ -22,8 +22,8 @@ def get_arguments():
     # Creates the ArgumentParser
     parser = argparse.ArgumentParser(usage='Evaluates a ConvRBM-based model using best parameters.')
 
-    parser.add_argument('dataset', help='Dataset identifier', choices=['natural_images','caltech101', 'fmnist', 'kmnist',
-                                                                       'mnist', 'semeion'])
+    parser.add_argument('dataset', help='Dataset identifier', choices=['caltech101', 'fmnist', 'kmnist',
+                                                                       'mnist', 'natural_images', 'semeion'])
 
     parser.add_argument('history', help='History object identifier', type=str)
 
@@ -117,8 +117,8 @@ if __name__ == '__main__':
                  optim.Adam(fc.parameters(), lr=0.001)]
 
     # Creating training and testing batches
-    train_batch = DataLoader(train, batch_size=batch_size, shuffle=False, num_workers=1)
-    test_batch = DataLoader(test, batch_size=10000, shuffle=False, num_workers=1)
+    train_batch = DataLoader(train, batch_size=batch_size, shuffle=False, num_workers=0)
+    test_batch = DataLoader(test, batch_size=10000, shuffle=False, num_workers=0)
 
     # For amount of fine-tuning epochs
     for e in range(10):
@@ -126,7 +126,7 @@ if __name__ == '__main__':
 
         # Resetting metrics
         train_loss, test_acc = 0, 0
-        
+
         # For every possible batch
         for x_batch, y_batch in tqdm(train_batch):
             # For every possible optimizer
