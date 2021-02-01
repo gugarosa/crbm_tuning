@@ -1,6 +1,6 @@
 # Common variables definition
-DATA="caltech101"
-BATCH_SIZE=128
+DATA="natural_images"
+BATCH_SIZE=4
 EPOCHS=1
 DEVICE="cpu"
 N_RUNS=1
@@ -8,7 +8,7 @@ N_RUNS=1
 # Architecture variables
 VISIBLE_SHAPE=28
 N_CHANNELS=1
-N_CLASSES=101
+N_CLASSES=10
 STEPS=1
 
 # Optimization variables
