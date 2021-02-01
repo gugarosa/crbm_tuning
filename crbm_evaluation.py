@@ -120,9 +120,12 @@ if __name__ == '__main__':
     train_batch = DataLoader(train, batch_size=batch_size, shuffle=False, num_workers=0)
     test_batch = DataLoader(test, batch_size=10000, shuffle=False, num_workers=0)
 
+    # Number of fine-tuning epochs
+    fine_tune_epochs = 10
+
     # For amount of fine-tuning epochs
-    for e in range(10):
-        print(f'Epoch {e+1}/{10}')
+    for e in range(fine_tune_epochs):
+        print(f'Epoch {e+1}/{fine_tune_epochs}')
 
         # Resetting metrics
         train_loss, test_acc = 0, 0
