@@ -2,6 +2,7 @@
 DATA="natural_images"
 BATCH_SIZE=4
 EPOCHS=1
+FINE_TUNE_EPOCHS=10
 DEVICE="cpu"
 N_RUNS=1
 
@@ -26,7 +27,7 @@ for SEED in $(seq 1 $N_RUNS); do
     # python crbm_tree_optimization.py ${DATA} ${MH} -visible_shape ${VISIBLE_SHAPE} ${VISIBLE_SHAPE} -n_channels ${N_CHANNELS} -steps ${STEPS} -batch_size ${BATCH_SIZE} -epochs ${EPOCHS} -device ${DEVICE} -n_trees ${N_AGENTS} -n_terminals ${N_TERMINALS} -n_iter ${N_ITER} -min_depth ${MIN_DEPTH} -max_depth ${MAX_DEPTH} -seed ${SEED}
 
     # Evaluates an optimized architecture
-    python crbm_evaluation.py ${DATA} ${MH}.pkl -visible_shape ${VISIBLE_SHAPE} ${VISIBLE_SHAPE} -n_channels ${N_CHANNELS} -n_classes ${N_CLASSES} -steps ${STEPS} -batch_size ${BATCH_SIZE} -epochs ${EPOCHS} -device ${DEVICE} -seed ${SEED}
+    python crbm_evaluation.py ${DATA} ${MH}.pkl -visible_shape ${VISIBLE_SHAPE} ${VISIBLE_SHAPE} -n_channels ${N_CHANNELS} -n_classes ${N_CLASSES} -steps ${STEPS} -batch_size ${BATCH_SIZE} -epochs ${EPOCHS} -fine_tune_epochs ${FINE_TUNE_EPOCHS} -device ${DEVICE} -seed ${SEED}
 
     # Stores files in the outputs folder
     mv ${MH}.pkl outputs/crbm_${MH}_${SEED}.pkl

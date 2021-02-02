@@ -39,6 +39,8 @@ def get_arguments():
 
     parser.add_argument('-epochs', help='Number of training epochs', type=int, default=5)
 
+    parser.add_argument('-fine_tune_epochs', help='Number of fine-tuning epochs', type=int, default=10)
+
     parser.add_argument('-device', help='CPU or GPU usage', choices=['cpu', 'cuda'])
 
     parser.add_argument('-seed', help='Seed identifier', type=int, default=0)
@@ -62,6 +64,7 @@ if __name__ == '__main__':
     steps = args.steps
     batch_size = args.batch_size
     epochs = args.epochs
+    fine_tune_epochs = args.fine_tune_epochs
     device = args.device
 
     # Checks for the name of device
@@ -119,9 +122,6 @@ if __name__ == '__main__':
     # Creating training and testing batches
     train_batch = DataLoader(train, batch_size=batch_size, shuffle=False, num_workers=0)
     test_batch = DataLoader(test, batch_size=10000, shuffle=False, num_workers=0)
-
-    # Number of fine-tuning epochs
-    fine_tune_epochs = 10
 
     # For amount of fine-tuning epochs
     for e in range(fine_tune_epochs):
