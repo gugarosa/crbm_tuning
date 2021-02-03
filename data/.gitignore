@@ -1,2 +1,3 @@
 # Datasets' files
-*.mat
+*
+!.gitignore

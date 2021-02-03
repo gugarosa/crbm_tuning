@@ -104,7 +104,7 @@ def load_caltech101(size):
     """
 
     # Attempts to download the file
-    output_path = './datasets/caltech101_silhouettes.mat'
+    output_path = './data/caltech101_silhouettes.mat'
     download_file('http://recogna.tech/files/crbm_tuning/caltech101_silhouettes.mat', output_path)
 
     # Loads the dataset from a .mat file
@@ -146,7 +146,7 @@ def load_natural_images(size):
     """
 
     # Attempts to download the file
-    output_path = './datasets/natural_images.mat'
+    output_path = './data/natural_images.mat'
     download_file('http://recogna.tech/files/crbm_tuning/natural_images.mat', output_path)
 
     # Defining a dictionary of transforms
