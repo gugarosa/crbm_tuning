@@ -22,7 +22,7 @@ def get_arguments():
     # Creates the ArgumentParser
     parser = argparse.ArgumentParser(usage='Evaluates a ConvRBM-based model using best parameters.')
 
-    parser.add_argument('dataset', help='Dataset identifier', choices=['caltech101', 'fmnist', 'kmnist',
+    parser.add_argument('dataset', help='Dataset identifier', choices=['mpeg7','caltech101', 'fmnist', 'kmnist',
                                                                        'mnist', 'natural_images', 'semeion'])
 
     parser.add_argument('history', help='History object identifier', type=str)
@@ -86,6 +86,7 @@ if __name__ == '__main__':
     h.load(history)
 
     # Best parameters
+    # [index_iteration, parameter(0) or fitness(1), index_decision_variable, index_dimension=0]
     filter_shape = (int(h.best_agent[-1][0][0][0]), int(h.best_agent[-1][0][0][0]))
     n_filters = int(h.best_agent[-1][0][1][0])
     lr = h.best_agent[-1][0][2][0]

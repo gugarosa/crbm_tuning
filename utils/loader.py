@@ -17,6 +17,56 @@ DATASETS = {
 }
 
 
+class Mpeg7Dataset(Dataset):
+    """Loads the Natural images from MPEG-7 Core Experiment.
+    """
+
+    def __init__(self, root, splitdata='', transform=None):
+        """Initialization method.
+        Args:
+            root (string): Path to the .mat file.
+            splitdata (string): Optional train, val, test.
+            transform (callable): Optional transform to be applied on a sample.
+        """
+
+        # Loads the dataset from a .mat file
+        data = sio.loadmat(root)         
+        
+        # Gathers the samples
+        self.data = data[ 'data_'+splitdata ].squeeze()
+
+        # Gathers the labels 
+        self.labels = data[ 'labels_'+splitdata ].squeeze()
+
+        # Defines the transform
+        self.transform = transform
+
+    def __len__(self):
+        """Returns the length of the dataset.
+        """
+        return len(self.data)
+
+    def __getitem__(self, idx):
+        """Returns each individual sample of the dataset.
+        Args:
+            idx (int): Sample identifier.
+        """
+
+        # Checks if index is a tensor
+        if torch.is_tensor(idx):
+            # If yes, transforms to a list
+            idx = idx.tolist()
+
+        # Gathers the sample
+        sample = self.data[idx]
+
+        # If there is a pre-defined transform
+        if self.transform:
+            # Applies the transform
+            sample = self.transform(sample)
+
+        return (sample, self.labels[idx])
+
 class NaturalImagesDataset(Dataset):
     """Loads the Natural images from Olshausen's.
 
@@ -133,6 +183,41 @@ def load_caltech101(size):
 
     return train, val, test
 
+def load_mpeg7(size):
+    """Loads the MPEG-7 Core Experiment.
+
+    Args:
+        size (tuple): Height and width to be resized.
+
+    Returns:
+        Training, validation and testing sets of MPEG-7 Core Experiment.
+
+    """
+
+    # Attempts to download the file
+    output_path = './data/mpeg7.mat'
+    #download_file('http://recogna.tech/files/crbm_tuning/mpeg7.mat', output_path)
+
+    # Defining a dictionary of transforms
+    data_transforms = {
+            'train': tv.transforms.Compose([
+                tv.transforms.ToTensor(),
+                tv.transforms.RandomResizedCrop(size),
+                tv.transforms.RandomHorizontalFlip()
+            ]),
+            'val': tv.transforms.Compose([
+                tv.transforms.ToTensor(),
+                tv.transforms.Resize(size)
+            ]),
+    }
+    
+    # Loads the sets using MPEG7Dataset   
+    train = Mpeg7Dataset(root=output_path, splitdata='train', transform=data_transforms['train'])
+    val = Mpeg7Dataset(root=output_path, splitdata='val', transform=data_transforms['val'])
+    test = Mpeg7Dataset(root=output_path, splitdata='test', transform=data_transforms['val'])
+
+    return train, val, test
+
 
 def load_natural_images(size):
     """Loads the Natural Images dataset.
@@ -220,6 +305,8 @@ def load_dataset(name='mnist', size=(28, 28), val_split=0.25, seed=0):
         return load_natural_images(size)
     elif name == 'semeion':
         return load_semeion(size, val_split)
+    elif name == 'mpeg7':
+        return load_mpeg7(size)
 
     # Loads the training data
     train = DATASETS[name](root='./data', train=True, download=True,
