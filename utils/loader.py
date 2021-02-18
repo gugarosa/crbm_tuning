@@ -19,37 +19,44 @@ DATASETS = {
 
 class Mpeg7Dataset(Dataset):
     """Loads the Natural images from MPEG-7 Core Experiment.
+
     """
 
-    def __init__(self, root, splitdata='', transform=None):
+    def __init__(self, root, split_data='', transform=None):
         """Initialization method.
+
         Args:
             root (string): Path to the .mat file.
-            splitdata (string): Optional train, val, test.
+            split_data (string): Optional train, val, test.
             transform (callable): Optional transform to be applied on a sample.
+
         """
 
         # Loads the dataset from a .mat file
         data = sio.loadmat(root)         
         
         # Gathers the samples
-        self.data = data[ 'data_'+splitdata ].squeeze()
+        self.data = data['data_' + split_data].squeeze()
 
         # Gathers the labels 
-        self.labels = data[ 'labels_'+splitdata ].squeeze()
+        self.labels = data['labels_' + split_data].squeeze()
 
         # Defines the transform
         self.transform = transform
 
     def __len__(self):
         """Returns the length of the dataset.
+
         """
+        
         return len(self.data)
 
     def __getitem__(self, idx):
         """Returns each individual sample of the dataset.
+
         Args:
             idx (int): Sample identifier.
+
         """
 
         # Checks if index is a tensor
@@ -196,7 +203,7 @@ def load_mpeg7(size):
 
     # Attempts to download the file
     output_path = './data/mpeg7.mat'
-    #download_file('http://recogna.tech/files/crbm_tuning/mpeg7.mat', output_path)
+    download_file('http://recogna.tech/files/crbm_tuning/mpeg7.mat', output_path)
 
     # Defining a dictionary of transforms
     data_transforms = {
@@ -212,9 +219,9 @@ def load_mpeg7(size):
     }
     
     # Loads the sets using MPEG7Dataset   
-    train = Mpeg7Dataset(root=output_path, splitdata='train', transform=data_transforms['train'])
-    val = Mpeg7Dataset(root=output_path, splitdata='val', transform=data_transforms['val'])
-    test = Mpeg7Dataset(root=output_path, splitdata='test', transform=data_transforms['val'])
+    train = Mpeg7Dataset(root=output_path, split_data='train', transform=data_transforms['train'])
+    val = Mpeg7Dataset(root=output_path, split_data='val', transform=data_transforms['val'])
+    test = Mpeg7Dataset(root=output_path, split_data='test', transform=data_transforms['val'])
 
     return train, val, test
 
