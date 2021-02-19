@@ -22,12 +22,12 @@ class Mpeg7Dataset(Dataset):
 
     """
 
-    def __init__(self, root, split_data='', transform=None):
+    def __init__(self, root, set, transform=None):
         """Initialization method.
 
         Args:
-            root (string): Path to the .mat file.
-            split_data (string): Optional train, val, test.
+            root (str): Path to the .mat file.
+            set (str): Type of set (train, val or test).
             transform (callable): Optional transform to be applied on a sample.
 
         """
@@ -36,10 +36,10 @@ class Mpeg7Dataset(Dataset):
         data = sio.loadmat(root)         
         
         # Gathers the samples
-        self.data = data['data_' + split_data].squeeze()
+        self.data = data['data_' + set].squeeze()
 
         # Gathers the labels 
-        self.labels = data['labels_' + split_data].squeeze()
+        self.labels = data['labels_' + set].squeeze()
 
         # Defines the transform
         self.transform = transform
@@ -219,9 +219,9 @@ def load_mpeg7(size):
     }
     
     # Loads the sets using MPEG7Dataset   
-    train = Mpeg7Dataset(root=output_path, split_data='train', transform=data_transforms['train'])
-    val = Mpeg7Dataset(root=output_path, split_data='val', transform=data_transforms['val'])
-    test = Mpeg7Dataset(root=output_path, split_data='test', transform=data_transforms['val'])
+    train = Mpeg7Dataset(root=output_path, set='train', transform=data_transforms['train'])
+    val = Mpeg7Dataset(root=output_path, set='val', transform=data_transforms['val'])
+    test = Mpeg7Dataset(root=output_path, set='test', transform=data_transforms['val'])
 
     return train, val, test
 
