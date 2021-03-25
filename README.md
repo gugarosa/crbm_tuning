@@ -35,7 +35,7 @@ pip install -r requirements.txt
 
 ### Data configuration
 
-In order to run the experiments, you can use `torchvision` and the internal downloader to load pre-implemented datasets. If necessary, one can also [download](http://recogna.tech/files/crbm_tuning) non-torchvision datasets and put them in the `data/` folder.
+In order to run the experiments, you can use `torchvision` and the internal downloader to load pre-implemented datasets. If necessary, one can also [download](https://www.recogna.tech/files/crbm_tuning) non-torchvision datasets and put them in the `data/` folder.
 
 ---
 
