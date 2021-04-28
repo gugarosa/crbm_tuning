@@ -1,4 +1,4 @@
 git+https://github.com/gugarosa/learnergy.git
-git+https://github.com/gugarosa/opytimizer.git
+opytimizer==2.1.4
 scipy>=1.5.2
 torchvision>=0.8.0
