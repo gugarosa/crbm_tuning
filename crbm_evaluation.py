@@ -23,7 +23,7 @@ def get_arguments():
     parser = argparse.ArgumentParser(usage='Evaluates a ConvRBM-based model using best parameters.')
 
     parser.add_argument('dataset', help='Dataset identifier', choices=['mpeg7','caltech101', 'fmnist', 'kmnist',
-                                                                       'mnist', 'natural_images', 'semeion'])
+                                                                       'mnist', 'natural_images', 'semeion', 'amd_eye'])
 
     parser.add_argument('history', help='History object identifier', type=str)
 
@@ -46,6 +46,22 @@ def get_arguments():
     parser.add_argument('-seed', help='Seed identifier', type=int, default=0)
 
     return parser.parse_args()
+
+
+def make_weights_for_balanced_classes(images, nclasses):                        
+    count = [0] * nclasses                                                      
+    for item in images:                                                         
+        count[item[1]] += 1
+        
+    weight_per_class = [0.] * nclasses                                      
+    N = float(sum(count))                                                   
+    for i in range(nclasses):                                                   
+        weight_per_class[i] = N/float(count[i])                                 
+    
+    weight = [0] * len(images)
+    for idx, val in enumerate(images):                                          
+        weight[idx] = weight_per_class[val[1]]                                  
+    return weight
 
 
 if __name__ == '__main__':
@@ -121,7 +137,13 @@ if __name__ == '__main__':
                  optim.Adam(fc.parameters(), lr=0.001)]
 
     # Creating training and testing batches
-    train_batch = DataLoader(train, batch_size=batch_size, shuffle=False, num_workers=0)
+    sampler=None
+    if dataset=='amd_eye':
+        weights = make_weights_for_balanced_classes(train.imgs, len(train.classes))                                                                
+        weights = torch.DoubleTensor(weights)                                       
+        sampler = torch.utils.data.sampler.WeightedRandomSampler(weights, len(weights))
+        
+    train_batch = DataLoader(train, batch_size=batch_size, shuffle=False, num_workers=0, sampler= sampler)
     test_batch = DataLoader(test, batch_size=10000, shuffle=False, num_workers=0)
 
     # For amount of fine-tuning epochs

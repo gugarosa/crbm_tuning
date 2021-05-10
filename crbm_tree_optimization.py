@@ -21,7 +21,7 @@ def get_arguments():
     parser = argparse.ArgumentParser(usage='Optimizes a ConvRBM-based model using Genetic Programming.')
 
     parser.add_argument('dataset', help='Dataset identifier', choices=['mpeg7','caltech101', 'fmnist', 'kmnist',
-                                                                       'mnist', 'natural_images', 'semeion'])
+                                                                       'mnist', 'natural_images', 'semeion','amd_eye'])
 
     parser.add_argument('mh', help='Meta-heuristic identifier', choices=['gp'])
 

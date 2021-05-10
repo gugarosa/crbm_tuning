@@ -287,6 +287,45 @@ def load_semeion(size, split):
 
     return train, val, test
 
+def load_amd( size, val_split):
+    """Loads the AMD Experiment.
+
+    Args:
+        size (tuple): Height and width to be resized.
+
+    Returns:
+        Training, validation and testing sets of AMD Experiment.
+
+    """
+
+    # Attempts to download the file
+    output_path = './data/data_amd'
+    #download_file('http://recogna.tech/files/crbm_tuning/mpeg7.mat', output_path)
+
+    # Defining a dictionary of transforms
+    data_transforms = {
+            'train': tv.transforms.Compose([
+                tv.transforms.ToTensor(),
+                tv.transforms.Resize(size),
+                tv.transforms.Grayscale(num_output_channels=1)
+            ]),
+            'test': tv.transforms.Compose([
+                tv.transforms.ToTensor(),
+                tv.transforms.Resize(size),
+                tv.transforms.Grayscale(num_output_channels=1)
+            ]),
+    }
+    
+    # Loads the sets using AMDDataset
+    train= tv.datasets.ImageFolder(root=output_path+r'/train', transform=data_transforms['train'])
+
+    # Splitting the training data into training/validation
+    train, val = torch.utils.data.random_split(
+        train, [int(len(train) * (1 - val_split)), int(len(train) * val_split)])
+
+    test = tv.datasets.ImageFolder(root=output_path+r'/test', transform=data_transforms['test']) 
+
+    return train, val, test
 
 def load_dataset(name='mnist', size=(28, 28), val_split=0.25, seed=0):
     """Loads a dataset.
@@ -314,6 +353,8 @@ def load_dataset(name='mnist', size=(28, 28), val_split=0.25, seed=0):
         return load_semeion(size, val_split)
     elif name == 'mpeg7':
         return load_mpeg7(size)
+    elif name == 'amd_eye':
+        return load_amd(size,val_split)
 
     # Loads the training data
     train = DATASETS[name](root='./data', train=True, download=True,
